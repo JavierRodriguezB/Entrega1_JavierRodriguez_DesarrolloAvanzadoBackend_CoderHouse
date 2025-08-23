@@ -1,12 +1,12 @@
 [
   {
     "id": 1,
-    "title": "iPhone 15 Pro",
+    "title": "Laptop Gaming Actualizada",
     "description": "El iPhone más avanzado con chip A17 Pro",
     "code": "IPHONE15PRO",
-    "price": 1199.99,
+    "price": 1600,
     "status": true,
-    "stock": 25,
+    "stock": 8,
     "category": "Smartphones",
     "thumbnails": [
       "iphone15pro_1.jpg",
@@ -37,6 +37,34 @@
     "category": "Audio",
     "thumbnails": [
       "airpods_pro.jpg"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Laptop Gaming",
+    "description": "Laptop para gaming de alto rendimiento",
+    "code": "LAP001",
+    "price": 1500,
+    "status": true,
+    "stock": 5,
+    "category": "Electrónicos",
+    "thumbnails": [
+      "laptop1.jpg",
+      "laptop2.jpg"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Laptop Gaming Pro",
+    "description": "Laptop para gaming de alto rendimiento",
+    "code": "LAP00111",
+    "price": 1500,
+    "status": true,
+    "stock": 5,
+    "category": "Electrónicos",
+    "thumbnails": [
+      "laptop1.jpg",
+      "laptop2.jpg"
     ]
   }
 ]

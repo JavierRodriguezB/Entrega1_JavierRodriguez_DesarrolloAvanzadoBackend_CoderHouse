@@ -80,7 +80,6 @@ El servidor estará disponible en `http://localhost:8080`
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
 | GET | `/api/products` | Listar todos los productos |
-| GET | `/api/products` | Listar todos los productos |
 | GET | `/api/products/:pid` | Obtener producto por ID |
 | GET | `/api/products/category/:category` | Obtener productos por categoría |
 | GET | `/api/products/price-range?min=X&max=Y` | Obtener productos por rango de precio |
