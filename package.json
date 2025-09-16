@@ -9,13 +9,21 @@
     "setup": "node setup.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["nodejs", "express", "api", "products", "carts"],
+  "keywords": [
+    "nodejs",
+    "express",
+    "api",
+    "products",
+    "carts"
+  ],
   "author": "Tu Nombre",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-handlebars": "^8.0.2",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
