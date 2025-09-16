@@ -133,10 +133,10 @@ const socket = io();
 
 // Elementos del DOM
 const productForm = document.getElementById('product-form');
-const productsList = document.getElementById('products-list');
+let productsList = document.getElementById('products-list');
 const productCount = document.getElementById('product-count');
 const connectionStatus = document.getElementById('connection-status');
-const noProducts = document.getElementById('no-products');
+let noProducts = document.getElementById('no-products');
 
 // Estado de conexión
 socket.on('connect', () => {
@@ -153,18 +153,28 @@ socket.on('disconnect', () => {
 
 // Escuchar nuevos productos
 socket.on('productAdded', (product) => {
-    console.log('Nuevo producto agregado:', product);
-    addProductToDOM(product);
-    updateProductCount();
-    showNotification('Producto agregado exitosamente', 'success');
+    console.log('Evento productAdded recibido:', product);
+    try {
+        addProductToDOM(product);
+        updateProductCount();
+        showNotification('Producto agregado exitosamente', 'success');
+    } catch (error) {
+        console.error('Error al procesar productAdded:', error);
+        showNotification('Error al agregar producto', 'error');
+    }
 });
 
 // Escuchar productos eliminados
 socket.on('productDeleted', (productId) => {
-    console.log('Producto eliminado:', productId);
-    removeProductFromDOM(productId);
-    updateProductCount();
-    showNotification('Producto eliminado exitosamente', 'info');
+    console.log('Evento productDeleted recibido:', productId);
+    try {
+        removeProductFromDOM(productId);
+        updateProductCount();
+        showNotification('Producto eliminado exitosamente', 'info');
+    } catch (error) {
+        console.error('Error al procesar productDeleted:', error);
+        showNotification('Error al eliminar producto', 'error');
+    }
 });
 
 // Escuchar errores del servidor
@@ -187,11 +197,22 @@ productForm.addEventListener('submit', (e) => {
         thumbnail: formData.get('thumbnail') || 'https://via.placeholder.com/300x200?text=Sin+Imagen'
     };
     
+    console.log('Enviando producto via WebSocket:', productData);
+    
+    // Validar datos antes de enviar
+    if (!productData.title || !productData.description || !productData.price || !productData.stock || !productData.category) {
+        showNotification('Por favor completa todos los campos requeridos', 'error');
+        return;
+    }
+    
     // Enviar producto via WebSocket
     socket.emit('addProduct', productData);
     
     // Limpiar formulario
     productForm.reset();
+    
+    // Mostrar notificación de envío
+    showNotification('Enviando producto...', 'info');
 });
 
 // Función para eliminar producto
@@ -203,32 +224,43 @@ function deleteProduct(productId) {
 
 // Función para agregar producto al DOM
 function addProductToDOM(product) {
+    console.log('Agregando producto al DOM:', product);
     const productCard = createProductCard(product);
     
-    if (noProducts) {
-        noProducts.remove();
+    // Remover mensaje de "no hay productos" si existe
+    const noProductsElement = document.getElementById('no-products');
+    if (noProductsElement) {
+        noProductsElement.remove();
     }
     
-    if (!productsList) {
+    // Obtener o crear la lista de productos
+    let productsListElement = document.getElementById('products-list');
+    if (!productsListElement) {
         const container = document.getElementById('products-container');
-        const newProductsList = document.createElement('div');
-        newProductsList.className = 'row';
-        newProductsList.id = 'products-list';
-        container.appendChild(newProductsList);
-        productsList = newProductsList;
+        productsListElement = document.createElement('div');
+        productsListElement.className = 'row';
+        productsListElement.id = 'products-list';
+        container.appendChild(productsListElement);
     }
     
-    productsList.insertAdjacentHTML('beforeend', productCard);
+    // Agregar el nuevo producto
+    productsListElement.insertAdjacentHTML('beforeend', productCard);
+    
+    // Actualizar referencias
+    productsList = productsListElement;
+    noProducts = null;
 }
 
 // Función para remover producto del DOM
 function removeProductFromDOM(productId) {
+    console.log('Removiendo producto del DOM:', productId);
     const productElement = document.querySelector(`[data-product-id="${productId}"]`);
     if (productElement) {
         productElement.remove();
         
-        // Si no hay más productos, mostrar mensaje
-        if (productsList && productsList.children.length === 0) {
+        // Verificar si quedan productos
+        const productsListElement = document.getElementById('products-list');
+        if (productsListElement && productsListElement.children.length === 0) {
             const container = document.getElementById('products-container');
             const noProductsMsg = `
                 <div class="text-center py-5" id="no-products">
@@ -238,6 +270,7 @@ function removeProductFromDOM(productId) {
                 </div>
             `;
             container.innerHTML = noProductsMsg;
+            noProducts = document.getElementById('no-products');
         }
     }
 }
@@ -294,8 +327,12 @@ function createProductCard(product) {
 
 // Función para actualizar contador de productos
 function updateProductCount() {
-    const count = productsList ? productsList.children.length : 0;
-    productCount.textContent = count;
+    const productsListElement = document.getElementById('products-list');
+    const count = productsListElement ? productsListElement.children.length : 0;
+    if (productCount) {
+        productCount.textContent = count;
+    }
+    console.log('Contador de productos actualizado:', count);
 }
 
 // Función para mostrar notificaciones

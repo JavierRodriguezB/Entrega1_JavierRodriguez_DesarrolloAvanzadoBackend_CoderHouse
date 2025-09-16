@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test WebSocket</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .log { background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; margin: 10px 0; height: 300px; overflow-y: auto; }
+        button { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test WebSocket - Productos en Tiempo Real</h1>
+        
+        <div id="status" class="status disconnected">
+            Estado: Desconectado
+        </div>
+        
+        <div class="log" id="log">
+            <div>Iniciando conexión WebSocket...</div>
+        </div>
+        
+        <h3>Agregar Producto</h3>
+        <form id="productForm">
+            <input type="text" id="title" placeholder="Título" required>
+            <input type="text" id="description" placeholder="Descripción" required>
+            <input type="number" id="price" placeholder="Precio" step="0.01" required>
+            <input type="number" id="stock" placeholder="Stock" required>
+            <select id="category" required>
+                <option value="">Seleccionar categoría</option>
+                <option value="Electrónicos">Electrónicos</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Hogar">Hogar</option>
+                <option value="Deportes">Deportes</option>
+                <option value="Libros">Libros</option>
+                <option value="Juguetes">Juguetes</option>
+            </select>
+            <input type="url" id="thumbnail" placeholder="URL de imagen (opcional)">
+            <button type="submit">Agregar Producto</button>
+        </form>
+        
+        <h3>Productos</h3>
+        <div id="products"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const status = document.getElementById('status');
+        const log = document.getElementById('log');
+        const productForm = document.getElementById('productForm');
+        const productsDiv = document.getElementById('products');
+
+        function addLog(message) {
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            log.appendChild(div);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Estado de conexión
+        socket.on('connect', () => {
+            status.textContent = 'Estado: Conectado';
+            status.className = 'status connected';
+            addLog('Conectado al servidor WebSocket');
+        });
+
+        socket.on('disconnect', () => {
+            status.textContent = 'Estado: Desconectado';
+            status.className = 'status disconnected';
+            addLog('Desconectado del servidor WebSocket');
+        });
+
+        // Eventos de productos
+        socket.on('productAdded', (product) => {
+            addLog('Producto agregado: ' + JSON.stringify(product));
+            addProductToDOM(product);
+        });
+
+        socket.on('productDeleted', (productId) => {
+            addLog('Producto eliminado: ' + productId);
+            removeProductFromDOM(productId);
+        });
+
+        socket.on('error', (error) => {
+            addLog('Error: ' + error.message);
+        });
+
+        // Manejar formulario
+        productForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const productData = {
+                title: document.getElementById('title').value,
+                description: document.getElementById('description').value,
+                price: parseFloat(document.getElementById('price').value),
+                stock: parseInt(document.getElementById('stock').value),
+                category: document.getElementById('category').value,
+                thumbnail: document.getElementById('thumbnail').value || 'https://via.placeholder.com/300x200?text=Sin+Imagen'
+            };
+            
+            addLog('Enviando producto: ' + JSON.stringify(productData));
+            socket.emit('addProduct', productData);
+            
+            productForm.reset();
+        });
+
+        function addProductToDOM(product) {
+            const productDiv = document.createElement('div');
+            productDiv.id = 'product-' + product.id;
+            productDiv.style.border = '1px solid #ddd';
+            productDiv.style.padding = '10px';
+            productDiv.style.margin = '10px 0';
+            productDiv.style.borderRadius = '5px';
+            
+            productDiv.innerHTML = `
+                <h4>${product.title}</h4>
+                <p>${product.description}</p>
+                <p><strong>Precio:</strong> $${product.price}</p>
+                <p><strong>Stock:</strong> ${product.stock}</p>
+                <p><strong>Categoría:</strong> ${product.category}</p>
+                <p><strong>ID:</strong> ${product.id}</p>
+                <button onclick="deleteProduct(${product.id})">Eliminar</button>
+            `;
+            
+            productsDiv.appendChild(productDiv);
+        }
+
+        function removeProductFromDOM(productId) {
+            const productDiv = document.getElementById('product-' + productId);
+            if (productDiv) {
+                productDiv.remove();
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('¿Eliminar producto ' + productId + '?')) {
+                addLog('Eliminando producto: ' + productId);
+                socket.emit('deleteProduct', productId);
+            }
+        }
+
+        addLog('Página cargada, esperando conexión...');
+    </script>
+</body>
+</html>

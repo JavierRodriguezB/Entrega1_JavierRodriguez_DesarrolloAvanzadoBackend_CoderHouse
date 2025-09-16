@@ -28,12 +28,20 @@ io.on('connection', (socket) => {
     // Evento para agregar un nuevo producto
     socket.on('addProduct', async (productData) => {
         try {
-            console.log('Agregando producto via WebSocket:', productData);
+            console.log('=== EVENTO addProduct RECIBIDO ===');
+            console.log('Datos del producto:', JSON.stringify(productData, null, 2));
+            console.log('Cliente ID:', socket.id);
+            
             const newProduct = await productService.create(productData);
+            console.log('Producto creado en la base de datos:', newProduct.toJSON());
             
             // Emitir a todos los clientes conectados
-            io.emit('productAdded', newProduct.toJSON());
-            console.log('Producto agregado exitosamente:', newProduct.id);
+            const productToEmit = newProduct.toJSON();
+            console.log('Emitiendo productAdded a todos los clientes:', productToEmit);
+            io.emit('productAdded', productToEmit);
+            
+            console.log('Producto agregado exitosamente. ID:', newProduct.id);
+            console.log('=== FIN EVENTO addProduct ===');
         } catch (error) {
             console.error('Error al agregar producto:', error);
             socket.emit('error', {
@@ -45,12 +53,19 @@ io.on('connection', (socket) => {
     // Evento para eliminar un producto
     socket.on('deleteProduct', async (productId) => {
         try {
-            console.log('Eliminando producto via WebSocket:', productId);
+            console.log('=== EVENTO deleteProduct RECIBIDO ===');
+            console.log('ID del producto a eliminar:', productId);
+            console.log('Cliente ID:', socket.id);
+            
             const deletedProduct = await productService.delete(productId);
+            console.log('Producto eliminado de la base de datos:', deletedProduct.toJSON());
             
             // Emitir a todos los clientes conectados
+            console.log('Emitiendo productDeleted a todos los clientes:', productId);
             io.emit('productDeleted', productId);
-            console.log('Producto eliminado exitosamente:', productId);
+            
+            console.log('Producto eliminado exitosamente. ID:', productId);
+            console.log('=== FIN EVENTO deleteProduct ===');
         } catch (error) {
             console.error('Error al eliminar producto:', error);
             socket.emit('error', {
