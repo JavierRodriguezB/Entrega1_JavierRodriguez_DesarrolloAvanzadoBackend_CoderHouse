@@ -1,6 +1,9 @@
+require('dotenv').config();
+
 const app = require('./src/app');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const { connectMongo } = require('./src/db/mongo');
 
 const PORT = 8080;
 
@@ -79,10 +82,17 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
-    console.log(`API Products: http://localhost:${PORT}/api/products`);
-    console.log(`API Carts: http://localhost:${PORT}/api/carts`);
-    console.log(`Vista Home: http://localhost:${PORT}/`);
-    console.log(`Vista Real Time: http://localhost:${PORT}/realtimeproducts`);
-});
+connectMongo()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Servidor corriendo en http://localhost:${PORT}`);
+      console.log(`API Products: http://localhost:${PORT}/api/products`);
+      console.log(`API Carts: http://localhost:${PORT}/api/carts`);
+      console.log(`Vista Home: http://localhost:${PORT}/`);
+      console.log(`Vista Real Time: http://localhost:${PORT}/realtimeproducts`);
+    });
+  })
+  .catch(error => {
+    console.error('Failed to connect to MongoDB:', error);
+    process.exit(1);
+  });

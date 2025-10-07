@@ -1,14 +1,40 @@
 const productService = require('../services/productService');
 
 class ProductController {
-    // GET /api/products - Listar todos los productos
+    // GET /api/products - Listar productos con paginación, filtro y orden
     async getAll(req, res) {
         try {
-            const products = await productService.getAll();
+            const { limit = 10, page = 1, sort, query } = req.query;
+
+            const result = await productService.getPaginated({
+                limit: parseInt(limit),
+                page: parseInt(page),
+                sort,
+                query
+            });
+
+            const basePath = `${req.protocol}://${req.get('host')}${req.baseUrl}`; // /api/products
+            const buildLink = (targetPage) => {
+                if (!targetPage) return null;
+                const params = new URLSearchParams();
+                params.set('page', targetPage);
+                params.set('limit', String(limit || 10));
+                if (sort) params.set('sort', sort);
+                if (query) params.set('query', query);
+                return `${basePath}?${params.toString()}`;
+            };
+
             res.json({
                 status: 'success',
-                data: products.map(product => product.toJSON()),
-                total: products.length
+                payload: result.payload,
+                totalPages: result.totalPages,
+                prevPage: result.prevPage,
+                nextPage: result.nextPage,
+                page: result.page,
+                hasPrevPage: result.hasPrevPage,
+                hasNextPage: result.hasNextPage,
+                prevLink: buildLink(result.prevPage),
+                nextLink: buildLink(result.nextPage)
             });
         } catch (error) {
             res.status(500).json({

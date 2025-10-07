@@ -1,45 +1,5 @@
 [
   {
-    "id": 1,
-    "title": "Laptop Gaming Actualizada",
-    "description": "El iPhone más avanzado con chip A17 Pro",
-    "code": "IPHONE15PRO",
-    "price": 1600,
-    "status": true,
-    "stock": 8,
-    "category": "Smartphones",
-    "thumbnails": [
-      "iphone15pro_1.jpg",
-      "iphone15pro_2.jpg"
-    ]
-  },
-  {
-    "id": 2,
-    "title": "MacBook Air M2",
-    "description": "Laptop ultraligera con chip M2",
-    "code": "MACBOOKAIRM2",
-    "price": 1299.99,
-    "status": true,
-    "stock": 15,
-    "category": "Laptops",
-    "thumbnails": [
-      "macbook_air_m2.jpg"
-    ]
-  },
-  {
-    "id": 3,
-    "title": "AirPods Pro",
-    "description": "Auriculares inalámbricos con cancelación de ruido",
-    "code": "AIRPODSPRO",
-    "price": 249.99,
-    "status": true,
-    "stock": 50,
-    "category": "Audio",
-    "thumbnails": [
-      "airpods_pro.jpg"
-    ]
-  },
-  {
     "id": 4,
     "title": "Laptop Gaming",
     "description": "Laptop para gaming de alto rendimiento",

@@ -1,0 +1,26 @@
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="mb-0">Carrito #{{cart.id}}</h2>
+  <a class="btn btn-outline-secondary" href="/products">Volver a productos</a>
+  {{#if error}}
+    <div class="alert alert-danger mt-2">{{error}}</div>
+  {{/if}}
+</div>
+
+{{#if cart.products.length}}
+  <ul class="list-group">
+    {{#each cart.products}}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <div><strong>{{productDetails.title}}</strong></div>
+          <small class="text-muted">Categoría: {{productDetails.category}}</small>
+        </div>
+        <div>
+          <span class="badge text-bg-primary me-3">Cantidad: {{quantity}}</span>
+          <span class="badge text-bg-secondary">Precio: ${{productDetails.price}}</span>
+        </div>
+      </li>
+    {{/each}}
+  </ul>
+{{else}}
+  <div class="alert alert-info">Este carrito no tiene productos.</div>
+{{/if}}

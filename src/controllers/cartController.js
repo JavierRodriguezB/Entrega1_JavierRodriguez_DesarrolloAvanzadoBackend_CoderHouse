@@ -153,6 +153,40 @@ class CartController {
         }
     }
 
+    // PUT /api/carts/:cid - Actualizar todos los productos del carrito
+    async updateAllProducts(req, res) {
+        try {
+            const { cid } = req.params;
+            const { products } = req.body;
+
+            if (!Array.isArray(products)) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'Se requiere un arreglo de productos'
+                });
+            }
+
+            const updatedCart = await cartService.updateProducts(cid, products);
+            res.json({
+                status: 'success',
+                message: 'Carrito actualizado exitosamente',
+                data: updatedCart.toJSON()
+            });
+        } catch (error) {
+            if (error.message === 'Carrito no encontrado' || error.message === 'Producto no encontrado') {
+                res.status(404).json({
+                    status: 'error',
+                    message: error.message
+                });
+            } else {
+                res.status(400).json({
+                    status: 'error',
+                    message: error.message
+                });
+            }
+        }
+    }
+
     // DELETE /api/carts/:cid - Eliminar carrito completamente
     async delete(req, res) {
         try {
